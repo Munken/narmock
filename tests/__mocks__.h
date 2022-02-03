@@ -12,6 +12,7 @@ Do not edit manually
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
+#include <stdint.h>
 #include <x86_64-linux-gnu/sys/mount.h>
 
 #include "dummy_functions.h"
@@ -376,17 +377,20 @@ struct _narmock_state_type_for_sum_variadic
     const _narmock_state_type_for_sum_variadic *(*mock_return)(void);
     const _narmock_state_type_for_sum_variadic *(*mock_implementation)(void (*implementation)(int arg1, int *arg2, ...));
     const _narmock_state_type_for_sum_variadic *(*mock_errno)(int errno_value);
+    const _narmock_state_type_for_sum_variadic *(*capture_variadic)(const char* fmt);
     const _narmock_state_type_for_sum_variadic *(*disable_mock)(void);
     const _narmock_state_type_for_sum_variadic *(*reset)(void);
     int call_count;
     const _narmock_params_type_for_sum_variadic *last_call;
-};
+}; 
 
 struct _narmock_params_type_for_sum_variadic
 {
     int arg1;
     int *arg2;
     int errsv;
+
+  uint64_t varg[25];
 };
 
 const _narmock_state_type_for_sum_variadic *_narmock_get_mock_for_sum_variadic(const void *function);

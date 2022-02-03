@@ -7,6 +7,7 @@ Do not edit manually
 
 #include <errno.h>
 #include <stddef.h>
+#include <stdarg.h>
 
 #include "__mocks__.h"
 
@@ -1622,6 +1623,7 @@ struct _narmock_private_state_type_for_sum_variadic
     _narmock_state_type_for_sum_variadic public;
 
     int mode;
+    const char* capture_fmt;
     void (*implementation)(int arg1, int *arg2, ...);
     int errno_value;
     _narmock_params_type_for_sum_variadic last_call;
@@ -1632,6 +1634,7 @@ static const _narmock_state_type_for_sum_variadic *_narmock_mock_implementation_
 static const _narmock_state_type_for_sum_variadic *_narmock_mock_errno_function_for_sum_variadic(int errno_value);
 static const _narmock_state_type_for_sum_variadic *_narmock_disable_mock_function_for_sum_variadic(void);
 static const _narmock_state_type_for_sum_variadic *_narmock_reset_function_for_sum_variadic(void);
+static const _narmock_state_type_for_sum_variadic *_narmock_capture_variadic_for_sum_variadic(const char* fmt);
 
 static _narmock_private_state_type_for_sum_variadic _narmock_state_for_sum_variadic =
 {
@@ -1640,12 +1643,14 @@ static _narmock_private_state_type_for_sum_variadic _narmock_state_for_sum_varia
         .mock_implementation = _narmock_mock_implementation_function_for_sum_variadic,
         .mock_errno = _narmock_mock_errno_function_for_sum_variadic,
         .disable_mock = _narmock_disable_mock_function_for_sum_variadic,
+	.capture_variadic = _narmock_capture_variadic_for_sum_variadic,
         .reset = _narmock_reset_function_for_sum_variadic,
         .call_count = 0,
         .last_call = NULL
     },
 
     .mode = 0,
+    .capture_fmt = NULL,
     .errno_value = 0
 };
 
@@ -1691,12 +1696,44 @@ void __wrap_sum_variadic(int arg1, int *arg2, ...)
 
     _narmock_state_for_sum_variadic.public.call_count++;
 
-    _narmock_params_type_for_sum_variadic last_call = { arg1, arg2, errno };
+    _narmock_params_type_for_sum_variadic last_call = { arg1, arg2, errno, {0} };
+ 
+    if (_narmock_state_for_sum_variadic.capture_fmt)
+    {
+      int i = 0;
+      va_list argp;
+      const char* format = _narmock_state_for_sum_variadic.capture_fmt;      
+      va_start(argp, arg2);
+
+      while (*format != '\0') {
+	if (*format == '%') {
+	  format++;
+	  if (*format == 'd') {
+	    last_call.varg[i++] = (uint64_t) va_arg(argp, int);
+	  } else if (*format == 'u') {
+	    last_call.varg[i++] = (uint64_t) va_arg(argp, unsigned int);
+	  } else if (*format == 'p') {
+	    last_call.varg[i++] = (uint64_t) va_arg(argp, void*);
+	  } else if (*format == 's') {
+	    last_call.varg[i++] = (uint64_t) va_arg(argp, void*);
+	  }
+	  format++;
+	} else {
+	  format++;
+	}
+      }      
+    }
 
     _narmock_state_for_sum_variadic.last_call = last_call;
     _narmock_state_for_sum_variadic.public.last_call = &_narmock_state_for_sum_variadic.last_call;
 
     return;
+}
+
+static const _narmock_state_type_for_sum_variadic *_narmock_capture_variadic_for_sum_variadic(const char* fmt) {
+    _narmock_state_for_sum_variadic.capture_fmt = fmt;
+
+    return &_narmock_state_for_sum_variadic.public;  
 }
 
 static const _narmock_state_type_for_sum_variadic *_narmock_mock_return_function_for_sum_variadic(void)
