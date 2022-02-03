@@ -26,6 +26,18 @@ Do not edit manually
 void narmock_reset_all_mocks(void);
 #endif
 
+typedef union _narmock_variadic_capture _narmock_variadic_capture;
+
+union _narmock_variadic_capture {
+  int d;
+  unsigned int u;
+  long l;
+  unsigned long lu;
+
+  void* p;
+  const char* s;
+};
+
 // NARMOCK_DECLARATION add
 // NARMOCK_LINKER_FLAGS -Wl,--wrap=add
 
@@ -390,7 +402,7 @@ struct _narmock_params_type_for_sum_variadic
     int *arg2;
     int errsv;
 
-  uint64_t varg[25];
+    _narmock_variadic_capture varg[25];
 };
 
 const _narmock_state_type_for_sum_variadic *_narmock_get_mock_for_sum_variadic(const void *function);

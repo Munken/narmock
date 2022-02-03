@@ -1696,7 +1696,7 @@ void __wrap_sum_variadic(int arg1, int *arg2, ...)
 
     _narmock_state_for_sum_variadic.public.call_count++;
 
-    _narmock_params_type_for_sum_variadic last_call = { arg1, arg2, errno, {0} };
+    _narmock_params_type_for_sum_variadic last_call = { arg1, arg2, errno, {{0}} };
  
     if (_narmock_state_for_sum_variadic.capture_fmt)
     {
@@ -1709,18 +1709,16 @@ void __wrap_sum_variadic(int arg1, int *arg2, ...)
 	if (*format == '%') {
 	  format++;
 	  if (*format == 'd') {
-	    last_call.varg[i++] = (uint64_t) va_arg(argp, int);
+	    last_call.varg[i++].d = va_arg(argp, int);
 	  } else if (*format == 'u') {
-	    last_call.varg[i++] = (uint64_t) va_arg(argp, unsigned int);
+	    last_call.varg[i++].u = va_arg(argp, unsigned int);
 	  } else if (*format == 'p') {
-	    last_call.varg[i++] = (uint64_t) va_arg(argp, void*);
+	    last_call.varg[i++].p = va_arg(argp, void*);
 	  } else if (*format == 's') {
-	    last_call.varg[i++] = (uint64_t) va_arg(argp, void*);
+	    last_call.varg[i++].s = va_arg(argp, const char*);
 	  }
-	  format++;
-	} else {
-	  format++;
 	}
+	format++;
       }      
     }
 

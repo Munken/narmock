@@ -342,7 +342,7 @@ TEST(sum_variadic_function_capture)
     ASSERT_EQ(value, 5);
     ASSERT_EQ(MOCK(sum_variadic)->last_call->arg1, 3);
 
-    ASSERT_EQ((int)MOCK(sum_variadic)->last_call->varg[0], 1);
-    ASSERT_EQ((int)MOCK(sum_variadic)->last_call->varg[1], 2);
-    ASSERT_EQ((int)MOCK(sum_variadic)->last_call->varg[2], 3);    
+    ASSERT_EQ(MOCK(sum_variadic)->last_call->varg[0].d, 1);
+    ASSERT_EQ(MOCK(sum_variadic)->last_call->varg[1].d, 2);
+    ASSERT_EQ(MOCK(sum_variadic)->last_call->varg[2].d, 3);    
 }
